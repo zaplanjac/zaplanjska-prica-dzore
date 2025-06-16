@@ -1,19 +1,37 @@
 import React, { useState } from 'react';
-import { X, BookOpen, Tag, Users, ChevronDown } from 'lucide-react';
+import { X, BookOpen, Tag, Users, ChevronDown, Clock } from 'lucide-react';
 import { t } from '../utils/textConverter';
 
 interface MobileMenuProps {
   isOpen: boolean;
   onClose: () => void;
   onBackToHome: () => void;
+  onViewAuthors: () => void;
+  onViewHistory: () => void;
 }
 
-export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, onBackToHome }) => {
+export const MobileMenu: React.FC<MobileMenuProps> = ({ 
+  isOpen, 
+  onClose, 
+  onBackToHome, 
+  onViewAuthors, 
+  onViewHistory 
+}) => {
   const [showCategories, setShowCategories] = useState(false);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
 
   const handleHomeClick = () => {
     onBackToHome();
+    onClose();
+  };
+
+  const handleAuthorsClick = () => {
+    onViewAuthors();
+    onClose();
+  };
+
+  const handleHistoryClick = () => {
+    onViewHistory();
     onClose();
   };
 
@@ -26,8 +44,9 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, onBackT
   ];
 
   const menuItems = [
-    { icon: BookOpen, label: t('Stories'), href: '#' },
-    { icon: Users, label: t('Authors'), href: '#' }
+    { icon: BookOpen, label: t('Stories'), onClick: handleHomeClick },
+    { icon: Users, label: t('Authors'), onClick: handleAuthorsClick },
+    { icon: Clock, label: 'Историја', onClick: handleHistoryClick }
   ];
 
   const toggleCategories = () => {
@@ -88,16 +107,15 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose, onBackT
             <ul className="space-y-2">
               {menuItems.map((item) => (
                 <li key={item.label}>
-                  <a
-                    href={item.href}
-                    className="flex items-center space-x-3 p-4 rounded-xl hover:bg-amber-50 transition-colors duration-200 group"
-                    onClick={onClose}
+                  <button
+                    onClick={item.onClick}
+                    className="flex items-center space-x-3 p-4 rounded-xl hover:bg-amber-50 transition-colors duration-200 group w-full text-left"
                   >
                     <item.icon className="w-5 h-5 text-gray-600 group-hover:text-amber-600 transition-colors duration-200" />
                     <span className="text-gray-900 font-medium group-hover:text-amber-700 transition-colors duration-200">
                       {item.label}
                     </span>
-                  </a>
+                  </button>
                 </li>
               ))}
               

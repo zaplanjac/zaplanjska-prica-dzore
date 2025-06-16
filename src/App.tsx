@@ -8,11 +8,14 @@ import { AdminPanel } from './components/AdminPanel';
 import { AdminLogin } from './components/AdminLogin';
 import { AuthorPanel } from './components/AuthorPanel';
 import { AuthorLogin } from './components/AuthorLogin';
+import { AuthorRegistration } from './components/AuthorRegistration';
+import { Authors } from './components/Authors';
+import { DevelopmentHistory } from './components/DevelopmentHistory';
 import { useAuth } from './hooks/useAuth';
 import { blogPosts } from './data/blogPosts';
 import { BlogPostType } from './types/blog';
 
-export type View = 'home' | 'post';
+export type View = 'home' | 'post' | 'authors' | 'history';
 
 function App() {
   const [currentView, setCurrentView] = useState<View>('home');
@@ -65,6 +68,16 @@ function App() {
     window.scrollTo(0, 0);
   };
 
+  const handleViewAuthors = () => {
+    setCurrentView('authors');
+    window.scrollTo(0, 0);
+  };
+
+  const handleViewHistory = () => {
+    setCurrentView('history');
+    window.scrollTo(0, 0);
+  };
+
   const handleAddPost = (newPost: BlogPostType) => {
     setPosts(prevPosts => [newPost, ...prevPosts]);
   };
@@ -94,7 +107,12 @@ function App() {
           {/* Main Blog Routes */}
           <Route path="/" element={
             <>
-              <Header onBackToHome={handleBackToHome} showBackButton={currentView === 'post'} />
+              <Header 
+                onBackToHome={handleBackToHome} 
+                onViewAuthors={handleViewAuthors}
+                onViewHistory={handleViewHistory}
+                showBackButton={currentView !== 'home'} 
+              />
               <main>
                 {currentView === 'home' && (
                   <Homepage onViewPost={handleViewPost} posts={posts} />
@@ -107,6 +125,14 @@ function App() {
                     onViewPost={handleViewPost}
                     allPosts={posts}
                   />
+                )}
+
+                {currentView === 'authors' && (
+                  <Authors posts={posts} onViewPost={handleViewPost} />
+                )}
+
+                {currentView === 'history' && (
+                  <DevelopmentHistory />
                 )}
               </main>
               <BackToTop />
@@ -138,6 +164,10 @@ function App() {
           {/* Author Routes */}
           <Route path="/author/login" element={
             <AuthorLogin onLogin={handleAuthorLogin} />
+          } />
+
+          <Route path="/author/register" element={
+            <AuthorRegistration />
           } />
           
           <Route path="/author" element={

@@ -6,10 +6,17 @@ import { t } from '../utils/textConverter';
 
 interface HeaderProps {
   onBackToHome: () => void;
+  onViewAuthors: () => void;
+  onViewHistory: () => void;
   showBackButton?: boolean;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onBackToHome, showBackButton = false }) => {
+export const Header: React.FC<HeaderProps> = ({ 
+  onBackToHome, 
+  onViewAuthors, 
+  onViewHistory, 
+  showBackButton = false 
+}) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
@@ -40,12 +47,24 @@ export const Header: React.FC<HeaderProps> = ({ onBackToHome, showBackButton = f
             
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center space-x-8">
-              <a href="#" className="text-gray-600 hover:text-gray-900 font-medium transition-colors duration-200">
+              <button 
+                onClick={onBackToHome}
+                className="text-gray-600 hover:text-gray-900 font-medium transition-colors duration-200"
+              >
                 {t('Stories')}
-              </a>
-              <a href="#" className="text-gray-600 hover:text-gray-900 font-medium transition-colors duration-200">
+              </button>
+              <button 
+                onClick={onViewAuthors}
+                className="text-gray-600 hover:text-gray-900 font-medium transition-colors duration-200"
+              >
                 {t('Authors')}
-              </a>
+              </button>
+              <button 
+                onClick={onViewHistory}
+                className="text-gray-600 hover:text-gray-900 font-medium transition-colors duration-200"
+              >
+                Историја
+              </button>
               <CategoryDropdown />
             </nav>
 
@@ -66,6 +85,8 @@ export const Header: React.FC<HeaderProps> = ({ onBackToHome, showBackButton = f
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}
         onBackToHome={onBackToHome}
+        onViewAuthors={onViewAuthors}
+        onViewHistory={onViewHistory}
       />
     </>
   );
