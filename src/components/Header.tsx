@@ -8,6 +8,8 @@ interface HeaderProps {
   onBackToHome: () => void;
   onViewAuthors: () => void;
   onViewHistory: () => void;
+  onCategorySelect: (category: string) => void;
+  selectedCategory: string;
   showBackButton?: boolean;
 }
 
@@ -15,6 +17,8 @@ export const Header: React.FC<HeaderProps> = ({
   onBackToHome, 
   onViewAuthors, 
   onViewHistory, 
+  onCategorySelect,
+  selectedCategory,
   showBackButton = false 
 }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -65,7 +69,10 @@ export const Header: React.FC<HeaderProps> = ({
               >
                 Историја
               </button>
-              <CategoryDropdown />
+              <CategoryDropdown 
+                onCategorySelect={onCategorySelect}
+                selectedCategory={selectedCategory}
+              />
             </nav>
 
             {/* Mobile Menu Button */}
@@ -87,6 +94,8 @@ export const Header: React.FC<HeaderProps> = ({
         onBackToHome={onBackToHome}
         onViewAuthors={onViewAuthors}
         onViewHistory={onViewHistory}
+        onCategorySelect={onCategorySelect}
+        selectedCategory={selectedCategory}
       />
     </>
   );

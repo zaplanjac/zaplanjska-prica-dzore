@@ -8,6 +8,8 @@ interface MobileMenuProps {
   onBackToHome: () => void;
   onViewAuthors: () => void;
   onViewHistory: () => void;
+  onCategorySelect: (category: string) => void;
+  selectedCategory: string;
 }
 
 export const MobileMenu: React.FC<MobileMenuProps> = ({ 
@@ -15,7 +17,9 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
   onClose, 
   onBackToHome, 
   onViewAuthors, 
-  onViewHistory 
+  onViewHistory,
+  onCategorySelect,
+  selectedCategory
 }) => {
   const [showCategories, setShowCategories] = useState(false);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
@@ -35,12 +39,17 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
     onClose();
   };
 
+  const handleCategoryClick = (category: string) => {
+    onCategorySelect(category);
+    onClose();
+  };
+
   const categories = [
-    { name: t('Technology'), count: 1, subcategories: ['Дигитални минимализам', 'Вештачка интелигенција'] },
-    { name: t('Culture'), count: 2, subcategories: ['Читање', 'Храна и култура'] },
-    { name: t('Environment'), count: 1, subcategories: ['Урбано баштованство', 'Одрживост'] },
-    { name: t('Science'), count: 1, subcategories: ['Неуронаука', 'Психологија'] },
-    { name: t('Philosophy'), count: 1, subcategories: ['Лутање', 'Мишљење'] }
+    { name: 'Technology', displayName: t('Technology'), count: 1, subcategories: ['Дигитални минимализам', 'Вештачка интелигенција'] },
+    { name: 'Culture', displayName: t('Culture'), count: 2, subcategories: ['Читање', 'Храна и култура'] },
+    { name: 'Environment', displayName: t('Environment'), count: 1, subcategories: ['Урбано баштованство', 'Одрживост'] },
+    { name: 'Science', displayName: t('Science'), count: 1, subcategories: ['Неуронаука', 'Психологија'] },
+    { name: 'Philosophy', displayName: t('Philosophy'), count: 1, subcategories: ['Лутање', 'Мишљење'] }
   ];
 
   const menuItems = [
@@ -58,11 +67,6 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
 
   const toggleCategory = (categoryName: string) => {
     setExpandedCategory(expandedCategory === categoryName ? null : categoryName);
-  };
-
-  const handleSubcategoryClick = (subcategory: string) => {
-    console.log('Selected subcategory:', subcategory);
-    onClose();
   };
 
   return (
@@ -125,12 +129,26 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
                   {/* Categories Toggle Button */}
                   <button
                     onClick={toggleCategories}
-                    className="flex items-center justify-between w-full p-3 rounded-xl hover:bg-amber-50 transition-colors duration-200 group"
+                    className={`flex items-center justify-between w-full p-3 rounded-xl transition-colors duration-200 group ${
+                      selectedCategory !== 'all' 
+                        ? 'bg-amber-50 text-amber-700 border border-amber-200' 
+                        : 'hover:bg-amber-50'
+                    }`}
                   >
                     <div className="flex items-center space-x-3">
-                      <Tag className="w-5 h-5 text-gray-600 group-hover:text-amber-600 transition-colors duration-200" />
-                      <span className="text-gray-900 font-medium group-hover:text-amber-700 transition-colors duration-200">
-                        {t('Categories')}
+                      <Tag className={`w-5 h-5 transition-colors duration-200 ${
+                        selectedCategory !== 'all' 
+                          ? 'text-amber-600' 
+                          : 'text-gray-600 group-hover:text-amber-600'
+                      }`} />
+                      <span className={`font-medium transition-colors duration-200 ${
+                        selectedCategory !== 'all' 
+                          ? 'text-amber-700' 
+                          : 'text-gray-900 group-hover:text-amber-700'
+                      }`}>
+                        {selectedCategory === 'all' ? t('Categories') : 
+                          categories.find(cat => cat.name === selectedCategory)?.displayName || selectedCategory
+                        }
                       </span>
                     </div>
                     <ChevronDown 
@@ -140,7 +158,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
                     />
                   </button>
                   
-                  {/* Categories List - Only show when toggled */}
+                  {/* Categories List */}
                   <div
                     className={`overflow-hidden transition-all duration-300 ${
                       showCategories 
@@ -149,50 +167,63 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
                     }`}
                   >
                     <div className="space-y-2 ml-8">
+                      {/* All Categories Option */}
+                      <button
+                        onClick={() => handleCategoryClick('all')}
+                        className={`w-full p-3 rounded-lg transition-colors duration-200 border ${
+                          selectedCategory === 'all'
+                            ? 'bg-amber-50 border-amber-200 text-amber-700'
+                            : 'border-transparent hover:bg-amber-50 hover:border-amber-200'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium text-gray-900">
+                            Све категорије
+                          </span>
+                          <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                            {categories.reduce((total, cat) => total + cat.count, 0)}
+                          </span>
+                        </div>
+                      </button>
+
                       {categories.map((category) => (
                         <div key={category.name} className="group">
                           {/* Main Category Button */}
                           <button
-                            onClick={() => toggleCategory(category.name)}
-                            className="w-full p-3 rounded-lg hover:bg-amber-50 transition-colors duration-200 border border-transparent hover:border-amber-200"
+                            onClick={() => handleCategoryClick(category.name)}
+                            className={`w-full p-3 rounded-lg transition-colors duration-200 border ${
+                              selectedCategory === category.name
+                                ? 'bg-amber-50 border-amber-200 text-amber-700'
+                                : 'border-transparent hover:bg-amber-50 hover:border-amber-200'
+                            }`}
                           >
                             <div className="flex items-center justify-between">
                               <div className="flex items-center space-x-2">
-                                <span className="font-medium text-gray-900 group-hover:text-amber-700">
-                                  {category.name}
+                                <span className={`font-medium ${
+                                  selectedCategory === category.name ? 'text-amber-700' : 'text-gray-900 group-hover:text-amber-700'
+                                }`}>
+                                  {category.displayName}
                                 </span>
                                 <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
                                   {category.count}
                                 </span>
                               </div>
-                              <ChevronDown 
-                                className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${
-                                  expandedCategory === category.name ? 'rotate-180' : ''
-                                }`} 
-                              />
                             </div>
-                          </button>
-                          
-                          {/* Subcategories - Only show when expanded */}
-                          <div
-                            className={`overflow-hidden transition-all duration-300 ${
-                              expandedCategory === category.name 
-                                ? 'max-h-96 opacity-100 mt-2' 
-                                : 'max-h-0 opacity-0'
-                            }`}
-                          >
-                            <div className="pl-4 space-y-1">
+                            <div className="flex flex-wrap gap-1 mt-2">
                               {category.subcategories.map((sub) => (
-                                <button
+                                <span
                                   key={sub}
-                                  onClick={() => handleSubcategoryClick(sub)}
-                                  className="block w-full text-left text-sm text-gray-600 bg-gray-50 px-3 py-2 rounded-full hover:bg-amber-100 hover:text-amber-700 transition-colors duration-200"
+                                  className={`text-xs px-2 py-1 rounded-full transition-colors duration-200 ${
+                                    selectedCategory === category.name
+                                      ? 'bg-amber-100 text-amber-700'
+                                      : 'text-gray-600 bg-gray-50 group-hover:bg-amber-100 group-hover:text-amber-700'
+                                  }`}
                                 >
                                   {sub}
-                                </button>
+                                </span>
                               ))}
                             </div>
-                          </div>
+                          </button>
                         </div>
                       ))}
                     </div>
