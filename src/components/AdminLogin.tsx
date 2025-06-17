@@ -23,7 +23,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin, isAuthenticated
     setError('');
 
     // Разликовање између администратора и едитора
-    if (credentials.username === 'admin' && credentials.password === 'admin2024') {
+    if (credentials.username === 'admin' && credentials.password === '1Flasicradule!') {
       setTimeout(() => {
         onLogin('admin');
         setIsLoading(false);
