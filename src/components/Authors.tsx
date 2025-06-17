@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { User, BookOpen, Calendar, TrendingUp, Filter, Mail, MapPin } from 'lucide-react';
 import { BlogPostType } from '../types/blog';
 import { t, latinToCyrillic } from '../utils/textConverter';
+import { getAllAuthors, AuthorUser } from '../utils/dataManager';
 
 interface AuthorsProps {
   posts: BlogPostType[];
@@ -10,18 +11,41 @@ interface AuthorsProps {
 
 export const Authors: React.FC<AuthorsProps> = ({ posts, onViewPost }) => {
   const [sortBy, setSortBy] = useState<'name' | 'posts' | 'recent'>('posts');
+  const [authors, setAuthors] = useState<AuthorUser[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Extract unique authors from posts
-  const authors = posts.reduce((acc, post) => {
+  // Load authors from persistent storage
+  useEffect(() => {
+    const loadAuthorsData = async () => {
+      try {
+        setIsLoading(true);
+        const authorsData = await getAllAuthors();
+        setAuthors(authorsData);
+      } catch (error) {
+        console.error('Error loading authors:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadAuthorsData();
+  }, []);
+
+  // Extract unique authors from posts and merge with registered authors
+  const authorsWithPosts = posts.reduce((acc, post) => {
     const authorKey = post.authorEmail || post.author;
     if (!acc[authorKey]) {
+      // Find registered author data
+      const registeredAuthor = authors.find(a => a.email === post.authorEmail || a.displayName === post.author);
+      
       acc[authorKey] = {
         name: post.author,
         email: post.authorEmail || '',
         posts: [],
         totalWords: 0,
         categories: new Set<string>(),
-        latestPost: post.date
+        latestPost: post.date,
+        registeredAuthor: registeredAuthor || null
       };
     }
     
@@ -37,7 +61,7 @@ export const Authors: React.FC<AuthorsProps> = ({ posts, onViewPost }) => {
     return acc;
   }, {} as Record<string, any>);
 
-  const authorsList = Object.values(authors);
+  const authorsList = Object.values(authorsWithPosts);
 
   // Sort authors
   const sortedAuthors = [...authorsList].sort((a, b) => {
@@ -56,6 +80,17 @@ export const Authors: React.FC<AuthorsProps> = ({ posts, onViewPost }) => {
   const totalAuthors = authorsList.length;
   const totalPosts = posts.length;
   const averagePostsPerAuthor = totalAuthors > 0 ? Math.round(totalPosts / totalAuthors) : 0;
+
+  if (isLoading) {
+    return (
+      <div className="max-w-6xl mx-auto px-6 py-8">
+        <div className="text-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Учитавање аутора...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-8">
@@ -153,8 +188,23 @@ export const Authors: React.FC<AuthorsProps> = ({ posts, onViewPost }) => {
                           {author.email}
                         </div>
                       )}
+                      {author.registeredAuthor && (
+                        <div className="flex items-center text-xs text-green-600 mt-1">
+                          <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
+                          Регистрован аутор
+                        </div>
+                      )}
                     </div>
                   </div>
+
+                  {/* Author Bio (if registered) */}
+                  {author.registeredAuthor?.bio && (
+                    <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+                      <p className="text-sm text-gray-700 leading-relaxed">
+                        {author.registeredAuthor.bio}
+                      </p>
+                    </div>
+                  )}
 
                   {/* Author Stats */}
                   <div className="grid grid-cols-2 gap-4 mb-4">

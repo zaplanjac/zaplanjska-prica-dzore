@@ -14,6 +14,7 @@ import { DevelopmentHistory } from './components/DevelopmentHistory';
 import { useAuth } from './hooks/useAuth';
 import { blogPosts } from './data/blogPosts';
 import { BlogPostType } from './types/blog';
+import { getAllPosts, addPost, updatePost, deletePost, initializeData } from './utils/dataManager';
 
 export type View = 'home' | 'post' | 'authors' | 'history';
 
@@ -24,39 +25,42 @@ function App() {
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [userType, setUserType] = useState<'admin' | 'editor'>('editor');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
 
-  // Load posts from localStorage on component mount, with fallback to default posts
+  // Initialize data and load posts on component mount
   useEffect(() => {
-    const savedPosts = localStorage.getItem('blogPosts');
-    if (savedPosts) {
+    const initializeApp = async () => {
       try {
-        const parsedPosts = JSON.parse(savedPosts);
-        // Ensure we have posts, if not use default
-        if (parsedPosts && parsedPosts.length > 0) {
-          setPosts(parsedPosts);
+        setIsLoading(true);
+        
+        // Initialize default data if needed
+        await initializeData();
+        
+        // Load posts from persistent storage
+        const savedPosts = await getAllPosts();
+        
+        if (savedPosts && savedPosts.length > 0) {
+          setPosts(savedPosts);
         } else {
+          // If no saved posts, use default posts and save them
           setPosts(blogPosts);
-          localStorage.setItem('blogPosts', JSON.stringify(blogPosts));
+          // Save default posts to persistent storage
+          for (const post of blogPosts) {
+            await addPost(post);
+          }
         }
       } catch (error) {
-        console.error('Error parsing saved posts:', error);
+        console.error('Error initializing app:', error);
+        // Fallback to default posts
         setPosts(blogPosts);
-        localStorage.setItem('blogPosts', JSON.stringify(blogPosts));
+      } finally {
+        setIsLoading(false);
       }
-    } else {
-      // No saved posts, use default and save them
-      setPosts(blogPosts);
-      localStorage.setItem('blogPosts', JSON.stringify(blogPosts));
-    }
-  }, []);
+    };
 
-  // Save posts to localStorage whenever posts change
-  useEffect(() => {
-    if (posts.length > 0) {
-      localStorage.setItem('blogPosts', JSON.stringify(posts));
-    }
-  }, [posts]);
+    initializeApp();
+  }, []);
 
   // Filter posts based on selected category
   const filteredPosts = selectedCategory === 'all' 
@@ -92,20 +96,38 @@ function App() {
     window.scrollTo(0, 0);
   };
 
-  const handleAddPost = (newPost: BlogPostType) => {
-    setPosts(prevPosts => [newPost, ...prevPosts]);
+  const handleAddPost = async (newPost: BlogPostType) => {
+    try {
+      await addPost(newPost);
+      setPosts(prevPosts => [newPost, ...prevPosts]);
+    } catch (error) {
+      console.error('Error adding post:', error);
+      alert('Грешка при додавању поста');
+    }
   };
 
-  const handleUpdatePost = (updatedPost: BlogPostType) => {
-    setPosts(prevPosts => 
-      prevPosts.map(post => 
-        post.id === updatedPost.id ? updatedPost : post
-      )
-    );
+  const handleUpdatePost = async (updatedPost: BlogPostType) => {
+    try {
+      await updatePost(updatedPost);
+      setPosts(prevPosts => 
+        prevPosts.map(post => 
+          post.id === updatedPost.id ? updatedPost : post
+        )
+      );
+    } catch (error) {
+      console.error('Error updating post:', error);
+      alert('Грешка при ажурирању поста');
+    }
   };
 
-  const handleDeletePost = (postId: string) => {
-    setPosts(prevPosts => prevPosts.filter(post => post.id !== postId));
+  const handleDeletePost = async (postId: string) => {
+    try {
+      await deletePost(postId);
+      setPosts(prevPosts => prevPosts.filter(post => post.id !== postId));
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      alert('Грешка при брисању поста');
+    }
   };
 
   const handleAuthorLogin = (user: any) => {
@@ -118,6 +140,18 @@ function App() {
   };
 
   const currentPost = posts.find(post => post.id === currentPostId);
+
+  // Show loading screen while initializing
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-cream-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Учитавање...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <Router>

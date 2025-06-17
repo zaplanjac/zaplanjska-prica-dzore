@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, LogOut, BookOpen, Save, X, Eye, Shield, User, Users, Mail, Calendar, ToggleLeft, ToggleRight } from 'lucide-react';
+import { Plus, Edit, Trash2, LogOut, BookOpen, Save, X, Eye, Shield, User, Users, Mail, Calendar, ToggleLeft, ToggleRight, Download, Upload } from 'lucide-react';
 import { BlogPostType } from '../types/blog';
 import { t } from '../utils/textConverter';
 import { useNavigate } from 'react-router-dom';
 import { getAllAuthors, AuthorUser, updateAuthor, deleteAuthor, createAuthor } from '../utils/dataManager';
+import { exportFileSystemData, importFileSystemData } from '../utils/fileStorage';
 
 interface AdminPanelProps {
   posts: BlogPostType[];
@@ -23,7 +24,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   userType
 }) => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'posts' | 'authors'>('posts');
+  const [activeTab, setActiveTab] = useState<'posts' | 'authors' | 'backup'>('posts');
   const [isEditing, setIsEditing] = useState(false);
   const [editingPost, setEditingPost] = useState<BlogPostType | null>(null);
   const [isEditingAuthor, setIsEditingAuthor] = useState(false);
@@ -57,9 +58,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     loadAuthors();
   }, []);
 
-  const loadAuthors = () => {
-    const allAuthors = getAllAuthors();
-    setAuthors(allAuthors);
+  const loadAuthors = async () => {
+    try {
+      const allAuthors = await getAllAuthors();
+      setAuthors(allAuthors);
+    } catch (error) {
+      console.error('Error loading authors:', error);
+    }
   };
 
   const handleEdit = (post: BlogPostType) => {
@@ -160,7 +165,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     setIsEditingAuthor(true);
   };
 
-  const handleSaveAuthor = () => {
+  const handleSaveAuthor = async () => {
     if (!authorFormData.email || !authorFormData.password || !authorFormData.firstName || !authorFormData.lastName) {
       alert('Молимо попуните сва обавезна поља');
       return;
@@ -188,12 +193,12 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
     try {
       if (editingAuthor) {
-        updateAuthor(editingAuthor.id, authorData);
+        await updateAuthor(editingAuthor.id, authorData);
       } else {
-        createAuthor(authorData);
+        await createAuthor(authorData);
       }
       
-      loadAuthors(); // Reload authors list
+      await loadAuthors(); // Reload authors list
       setIsEditingAuthor(false);
       setEditingAuthor(null);
     } catch (error) {
@@ -207,14 +212,14 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     setEditingAuthor(null);
   };
 
-  const handleDeleteAuthor = (authorId: string) => {
+  const handleDeleteAuthor = async (authorId: string) => {
     const author = authors.find(a => a.id === authorId);
     if (!author) return;
 
     if (window.confirm(`Да ли сте сигурни да желите да обришете аутора "${author.displayName}"?`)) {
       try {
-        deleteAuthor(authorId);
-        loadAuthors(); // Reload authors list
+        await deleteAuthor(authorId);
+        await loadAuthors(); // Reload authors list
       } catch (error) {
         alert('Грешка при брисању аутора');
         console.error('Error deleting author:', error);
@@ -222,17 +227,57 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     }
   };
 
-  const toggleAuthorStatus = (authorId: string) => {
+  const toggleAuthorStatus = async (authorId: string) => {
     const author = authors.find(a => a.id === authorId);
     if (!author) return;
 
     try {
-      updateAuthor(authorId, { ...author, isActive: !author.isActive });
-      loadAuthors(); // Reload authors list
+      await updateAuthor(authorId, { ...author, isActive: !author.isActive });
+      await loadAuthors(); // Reload authors list
     } catch (error) {
       alert('Грешка при промени статуса аутора');
       console.error('Error updating author status:', error);
     }
+  };
+
+  // Backup and restore functions
+  const handleExportData = () => {
+    try {
+      const data = exportFileSystemData();
+      const blob = new Blob([data], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `citaj-o-zaplanju-backup-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      alert('Подаци су успешно извезени!');
+    } catch (error) {
+      console.error('Error exporting data:', error);
+      alert('Грешка при извозу података');
+    }
+  };
+
+  const handleImportData = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = e.target?.result as string;
+        importFileSystemData(data);
+        alert('Подаци су успешно увезени! Освежите страницу да видите промене.');
+        // Reset file input
+        event.target.value = '';
+      } catch (error) {
+        console.error('Error importing data:', error);
+        alert('Грешка при увозу података. Проверите формат фајла.');
+      }
+    };
+    reader.readAsText(file);
   };
 
   const handleLogout = () => {
@@ -320,16 +365,28 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 Постови
               </button>
               {userType === 'admin' && (
-                <button
-                  onClick={() => setActiveTab('authors')}
-                  className={`px-4 py-2 rounded-md font-medium transition-colors duration-200 ${
-                    activeTab === 'authors'
-                      ? 'bg-white text-amber-600 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  Аутори
-                </button>
+                <>
+                  <button
+                    onClick={() => setActiveTab('authors')}
+                    className={`px-4 py-2 rounded-md font-medium transition-colors duration-200 ${
+                      activeTab === 'authors'
+                        ? 'bg-white text-amber-600 shadow-sm'
+                        : 'text-gray-600 hover:text-gray-900'
+                    }`}
+                  >
+                    Аутори
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('backup')}
+                    className={`px-4 py-2 rounded-md font-medium transition-colors duration-200 ${
+                      activeTab === 'backup'
+                        ? 'bg-white text-amber-600 shadow-sm'
+                        : 'text-gray-600 hover:text-gray-900'
+                    }`}
+                  >
+                    Резервне копије
+                  </button>
+                </>
               )}
             </div>
 
@@ -401,7 +458,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                   ))}
                 </div>
               </div>
-            ) : (
+            ) : activeTab === 'authors' ? (
               /* Authors List */
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
@@ -500,6 +557,119 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                       </div>
                     </div>
                   ))}
+                </div>
+              </div>
+            ) : (
+              /* Backup and Restore */
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-3xl font-serif font-bold text-gray-900">
+                    Резервне копије података
+                  </h2>
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-2">
+                    <p className="text-blue-700 text-sm font-medium">
+                      Извезите или увезите све податке апликације
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-8">
+                  {/* Export Data */}
+                  <div className="bg-white rounded-xl shadow-md p-6">
+                    <div className="flex items-center space-x-3 mb-4">
+                      <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                        <Download className="w-6 h-6 text-green-600" />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-serif font-bold text-gray-900">
+                          Извези податке
+                        </h3>
+                        <p className="text-gray-600">Сачувајте резервну копију</p>
+                      </div>
+                    </div>
+                    
+                    <p className="text-gray-700 mb-6 leading-relaxed">
+                      Извезите све податке (ауторе, постове, админе) у JSON фајл. 
+                      Овај фајл можете користити за враћање података или пренос на други сервер.
+                    </p>
+                    
+                    <button
+                      onClick={handleExportData}
+                      className="w-full bg-green-600 text-white py-3 rounded-lg font-medium hover:bg-green-700 transition-colors duration-200 flex items-center justify-center space-x-2"
+                    >
+                      <Download className="w-5 h-5" />
+                      <span>Извези све податке</span>
+                    </button>
+                  </div>
+
+                  {/* Import Data */}
+                  <div className="bg-white rounded-xl shadow-md p-6">
+                    <div className="flex items-center space-x-3 mb-4">
+                      <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                        <Upload className="w-6 h-6 text-blue-600" />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-serif font-bold text-gray-900">
+                          Увези податке
+                        </h3>
+                        <p className="text-gray-600">Вратите резервну копију</p>
+                      </div>
+                    </div>
+                    
+                    <p className="text-gray-700 mb-6 leading-relaxed">
+                      Увезите податке из претходно извезеног JSON фајла. 
+                      <strong className="text-red-600">Пажња:</strong> Ово ће заменити све тренутне податке!
+                    </p>
+                    
+                    <div className="space-y-4">
+                      <input
+                        type="file"
+                        accept=".json"
+                        onChange={handleImportData}
+                        className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                      
+                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                        <div className="flex items-start space-x-3">
+                          <div className="text-yellow-600">⚠️</div>
+                          <div className="text-sm text-yellow-800">
+                            <p className="font-medium mb-1">Важно упозорење:</p>
+                            <ul className="list-disc list-inside space-y-1">
+                              <li>Увоз ће заменити све тренутне податке</li>
+                              <li>Препоручујемо да прво извезете тренутне податке</li>
+                              <li>После увоза освежите страницу</li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Data Overview */}
+                <div className="bg-white rounded-xl shadow-md p-6">
+                  <h3 className="text-xl font-serif font-bold text-gray-900 mb-4">
+                    Преглед података
+                  </h3>
+                  
+                  <div className="grid md:grid-cols-3 gap-6">
+                    <div className="text-center p-4 bg-amber-50 rounded-lg">
+                      <div className="text-2xl font-bold text-amber-600">{posts.length}</div>
+                      <div className="text-sm text-gray-600">Постова</div>
+                    </div>
+                    
+                    <div className="text-center p-4 bg-blue-50 rounded-lg">
+                      <div className="text-2xl font-bold text-blue-600">{authors.length}</div>
+                      <div className="text-sm text-gray-600">Аутора</div>
+                    </div>
+                    
+                    <div className="text-center p-4 bg-green-50 rounded-lg">
+                      <div className="text-2xl font-bold text-green-600">
+                        {authors.filter(a => a.isActive).length}
+                      </div>
+                      <div className="text-sm text-gray-600">Активних аутора</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
