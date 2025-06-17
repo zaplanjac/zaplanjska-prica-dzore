@@ -1,14 +1,11 @@
 import React, { useState } from 'react';
 import { BookOpen, ArrowLeft, Menu } from 'lucide-react';
 import { MobileMenu } from './MobileMenu';
-import { t } from '../utils/textConverter';
 
 interface HeaderProps {
   onBackToHome: () => void;
   onViewAuthors: () => void;
   onViewHistory: () => void;
-  onCategorySelect: (category: string) => void;
-  selectedCategory: string;
   showBackButton?: boolean;
 }
 
@@ -16,8 +13,6 @@ export const Header: React.FC<HeaderProps> = ({
   onBackToHome, 
   onViewAuthors, 
   onViewHistory, 
-  onCategorySelect,
-  selectedCategory,
   showBackButton = false 
 }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -54,13 +49,19 @@ export const Header: React.FC<HeaderProps> = ({
                 onClick={onBackToHome}
                 className="text-gray-600 hover:text-gray-900 font-medium transition-colors duration-200"
               >
-                {t('Stories')}
+                Приче
               </button>
               <button 
                 onClick={onViewAuthors}
                 className="text-gray-600 hover:text-gray-900 font-medium transition-colors duration-200"
               >
-                {t('Authors')}
+                Аутори
+              </button>
+              <button 
+                onClick={onViewHistory}
+                className="text-gray-600 hover:text-gray-900 font-medium transition-colors duration-200"
+              >
+                Историја
               </button>
             </nav>
 
@@ -83,8 +84,6 @@ export const Header: React.FC<HeaderProps> = ({
         onBackToHome={onBackToHome}
         onViewAuthors={onViewAuthors}
         onViewHistory={onViewHistory}
-        onCategorySelect={onCategorySelect}
-        selectedCategory={selectedCategory}
       />
     </>
   );

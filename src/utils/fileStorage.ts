@@ -31,8 +31,8 @@ export interface AuthorUser {
 // File paths for data storage
 const DATA_PATHS = {
   authors: '/src/data/users/authors.json',
-  admins: '/src/data/users/admins.json',
-  posts: '/src/data/posts/published-posts.json'
+  admins: '/src/data/passwords-editors.json',
+  posts: '/src/data/published-posts/posts.json'
 };
 
 // Helper function to read JSON file
@@ -166,7 +166,7 @@ export const loadPosts = async (): Promise<BlogPostType[]> => {
   }
   
   // Fallback to localStorage
-  const localData = localStorage.getItem('posts/published-posts');
+  const localData = localStorage.getItem('published-posts/posts');
   if (localData) {
     try {
       const parsed = JSON.parse(localData);
@@ -257,13 +257,13 @@ export const authenticateAdmin = async (username: string, password: string): Pro
   let admins: AdminUser[] = [];
   
   if (fileSystemData[DATA_PATHS.admins]) {
-    admins = fileSystemData[DATA_PATHS.admins].admins || [];
+    admins = fileSystemData[DATA_PATHS.admins].editors || [];
   } else {
     // Fallback to default admins
     try {
       const defaultData = await readJSONFile(DATA_PATHS.admins);
-      if (defaultData && defaultData.admins) {
-        admins = defaultData.admins;
+      if (defaultData && defaultData.editors) {
+        admins = defaultData.editors;
       }
     } catch (error) {
       console.error('Error loading admins:', error);
@@ -304,7 +304,7 @@ export const authenticateAdmin = async (username: string, password: string): Pro
     const updatedAdmins = admins.map(admin => 
       admin.id === user.id ? user : admin
     );
-    await writeJSONFile(DATA_PATHS.admins, { admins: updatedAdmins });
+    await writeJSONFile(DATA_PATHS.admins, { editors: updatedAdmins });
     
     return user;
   }

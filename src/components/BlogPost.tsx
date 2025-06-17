@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Calendar, Clock, User, ArrowLeft } from 'lucide-react';
 import { BlogPostType } from '../types/blog';
-import { t, latinToCyrillic, formatSerbianDate } from '../utils/textConverter';
+import { latinToCyrillic, formatSerbianDate } from '../utils/textConverter';
 
 interface BlogPostProps {
   post: BlogPostType;
@@ -25,7 +25,7 @@ export const BlogPost: React.FC<BlogPostProps> = ({ post, onBackToHome, onViewPo
   }, []);
 
   const relatedPosts = allPosts
-    .filter(p => p.id !== post.id && p.category === post.category)
+    .filter(p => p.id !== post.id)
     .slice(0, 3);
 
   return (
@@ -40,12 +40,6 @@ export const BlogPost: React.FC<BlogPostProps> = ({ post, onBackToHome, onViewPo
 
       {/* Article Header */}
       <header className="mb-12 text-center">
-        <div className="mb-6">
-          <span className="bg-amber-100 text-amber-800 px-4 py-2 rounded-full text-sm font-medium">
-            {t(post.category)}
-          </span>
-        </div>
-        
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-gray-900 mb-6 leading-tight">
           {latinToCyrillic(post.title)}
         </h1>
@@ -65,7 +59,7 @@ export const BlogPost: React.FC<BlogPostProps> = ({ post, onBackToHome, onViewPo
           </div>
           <div className="flex items-center">
             <Clock className="w-5 h-5 mr-2" />
-            <span>{post.readTime.replace('min read', t('min read'))}</span>
+            <span>{post.readTime.replace('min read', 'мин читања')}</span>
           </div>
         </div>
       </header>
@@ -99,7 +93,7 @@ export const BlogPost: React.FC<BlogPostProps> = ({ post, onBackToHome, onViewPo
           <div>
             <h3 className="text-xl font-serif font-bold text-gray-900 mb-2">{latinToCyrillic(post.author)}</h3>
             <p className="text-gray-600 leading-relaxed">
-              {latinToCyrillic('A passionate writer exploring the intersection of technology, culture, and human experience. Always seeking to tell stories that matter and connect with readers on a deeper level.')}
+              Страствени писац који истражује пресек технологије, културе и људског искуства. Увек тражи приче које имају значај и повезују се са читаоцима на дубљем нивоу.
             </p>
           </div>
         </div>
@@ -109,7 +103,7 @@ export const BlogPost: React.FC<BlogPostProps> = ({ post, onBackToHome, onViewPo
       {relatedPosts.length > 0 && (
         <section className="mt-16">
           <h3 className="text-3xl font-serif font-bold text-gray-900 mb-8 text-center">
-            {t('More in')} {t(post.category)}
+            Остале приче
           </h3>
           <div className="grid md:grid-cols-3 gap-6">
             {relatedPosts.map((relatedPost) => (
@@ -131,7 +125,7 @@ export const BlogPost: React.FC<BlogPostProps> = ({ post, onBackToHome, onViewPo
                   </h4>
                   <div className="flex items-center text-sm text-gray-500">
                     <Clock className="w-4 h-4 mr-1" />
-                    {relatedPost.readTime.replace('min read', t('min read'))}
+                    {relatedPost.readTime.replace('min read', 'мин читања')}
                   </div>
                 </div>
               </article>
@@ -147,7 +141,7 @@ export const BlogPost: React.FC<BlogPostProps> = ({ post, onBackToHome, onViewPo
           className="flex items-center space-x-2 px-6 py-3 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors duration-200"
         >
           <ArrowLeft className="w-5 h-5" />
-          <span>{t('Back to Stories')}</span>
+          <span>Назад на приче</span>
         </button>
       </div>
     </article>

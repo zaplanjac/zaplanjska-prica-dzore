@@ -24,7 +24,6 @@ function App() {
   const [posts, setPosts] = useState<BlogPostType[]>([]);
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [userType, setUserType] = useState<'admin' | 'editor'>('editor');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
 
@@ -62,11 +61,6 @@ function App() {
     initializeApp();
   }, []);
 
-  // Filter posts based on selected category
-  const filteredPosts = selectedCategory === 'all' 
-    ? posts 
-    : posts.filter(post => post.category === selectedCategory);
-
   const handleViewPost = (postId: string) => {
     setCurrentPostId(postId);
     setCurrentView('post');
@@ -76,7 +70,6 @@ function App() {
   const handleBackToHome = () => {
     setCurrentView('home');
     setCurrentPostId('');
-    setSelectedCategory('all'); // Reset category filter when going back to home
     window.scrollTo(0, 0);
   };
 
@@ -87,12 +80,6 @@ function App() {
 
   const handleViewHistory = () => {
     setCurrentView('history');
-    window.scrollTo(0, 0);
-  };
-
-  const handleCategorySelect = (category: string) => {
-    setSelectedCategory(category);
-    setCurrentView('home'); // Make sure we're on home view when filtering
     window.scrollTo(0, 0);
   };
 
@@ -164,17 +151,13 @@ function App() {
                 onBackToHome={handleBackToHome} 
                 onViewAuthors={handleViewAuthors}
                 onViewHistory={handleViewHistory}
-                onCategorySelect={handleCategorySelect}
-                selectedCategory={selectedCategory}
                 showBackButton={currentView !== 'home'} 
               />
               <main>
                 {currentView === 'home' && (
                   <Homepage 
                     onViewPost={handleViewPost} 
-                    posts={filteredPosts}
-                    selectedCategory={selectedCategory}
-                    onCategorySelect={handleCategorySelect}
+                    posts={posts}
                   />
                 )}
                 

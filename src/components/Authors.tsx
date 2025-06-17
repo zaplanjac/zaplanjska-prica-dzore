@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { User, BookOpen, Calendar, TrendingUp, Filter, Mail, MapPin } from 'lucide-react';
+import { User, BookOpen, Calendar, TrendingUp, Mail } from 'lucide-react';
 import { BlogPostType } from '../types/blog';
-import { t, latinToCyrillic } from '../utils/textConverter';
+import { latinToCyrillic } from '../utils/textConverter';
 import { getAllAuthors, AuthorUser } from '../utils/dataManager';
 
 interface AuthorsProps {
@@ -43,7 +43,6 @@ export const Authors: React.FC<AuthorsProps> = ({ posts, onViewPost }) => {
         email: post.authorEmail || '',
         posts: [],
         totalWords: 0,
-        categories: new Set<string>(),
         latestPost: post.date,
         registeredAuthor: registeredAuthor || null
       };
@@ -51,7 +50,6 @@ export const Authors: React.FC<AuthorsProps> = ({ posts, onViewPost }) => {
     
     acc[authorKey].posts.push(post);
     acc[authorKey].totalWords += post.content.split(' ').length;
-    acc[authorKey].categories.add(post.category);
     
     // Update latest post date
     if (new Date(post.date) > new Date(acc[authorKey].latestPost)) {
@@ -141,11 +139,10 @@ export const Authors: React.FC<AuthorsProps> = ({ posts, onViewPost }) => {
         <div className="bg-white rounded-xl shadow-md p-6">
           <div className="flex flex-col md:flex-row gap-4 items-center justify-center">
             <div className="relative">
-              <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as 'name' | 'posts' | 'recent')}
-                className="pl-10 pr-8 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white"
+                className="pl-4 pr-8 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white"
               >
                 <option value="posts">Сортирај по броју прича</option>
                 <option value="name">Сортирај по имену</option>
@@ -217,21 +214,6 @@ export const Authors: React.FC<AuthorsProps> = ({ posts, onViewPost }) => {
                         {Math.round(author.totalWords / 1000)}к
                       </div>
                       <div className="text-sm text-gray-600">Речи</div>
-                    </div>
-                  </div>
-
-                  {/* Categories */}
-                  <div className="mb-4">
-                    <h4 className="text-sm font-medium text-gray-700 mb-2">Категорије:</h4>
-                    <div className="flex flex-wrap gap-1">
-                      {Array.from(author.categories).map((category) => (
-                        <span
-                          key={category}
-                          className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full"
-                        >
-                          {t(category)}
-                        </span>
-                      ))}
                     </div>
                   </div>
 

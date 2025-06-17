@@ -1,6 +1,5 @@
 import React from 'react';
-import { X, BookOpen, Users } from 'lucide-react';
-import { t } from '../utils/textConverter';
+import { X, BookOpen, Users, Clock } from 'lucide-react';
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -8,15 +7,14 @@ interface MobileMenuProps {
   onBackToHome: () => void;
   onViewAuthors: () => void;
   onViewHistory: () => void;
-  onCategorySelect: (category: string) => void;
-  selectedCategory: string;
 }
 
 export const MobileMenu: React.FC<MobileMenuProps> = ({ 
   isOpen, 
   onClose, 
   onBackToHome, 
-  onViewAuthors
+  onViewAuthors,
+  onViewHistory
 }) => {
   const handleHomeClick = () => {
     onBackToHome();
@@ -28,9 +26,15 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
     onClose();
   };
 
+  const handleHistoryClick = () => {
+    onViewHistory();
+    onClose();
+  };
+
   const menuItems = [
-    { icon: BookOpen, label: t('Stories'), onClick: handleHomeClick },
-    { icon: Users, label: t('Authors'), onClick: handleAuthorsClick }
+    { icon: BookOpen, label: 'Приче', onClick: handleHomeClick },
+    { icon: Users, label: 'Аутори', onClick: handleAuthorsClick },
+    { icon: Clock, label: 'Историја', onClick: handleHistoryClick }
   ];
 
   return (

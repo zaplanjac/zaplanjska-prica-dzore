@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Plus, Edit, Trash2, LogOut, BookOpen, Save, X, User, Eye, Calendar, Clock } from 'lucide-react';
 import { BlogPostType } from '../types/blog';
 import { useAuth } from '../hooks/useAuth';
-import { t } from '../utils/textConverter';
 import { useNavigate } from 'react-router-dom';
 
 interface AuthorPanelProps {
@@ -28,18 +27,9 @@ export const AuthorPanel: React.FC<AuthorPanelProps> = ({
     excerpt: '',
     content: '',
     author: user?.displayName || user?.email || '',
-    category: 'Culture',
     image: '',
     featured: false
   });
-
-  const categories = [
-    { value: 'Technology', label: 'Технологија' },
-    { value: 'Culture', label: 'Култура' },
-    { value: 'Environment', label: 'Природа' },
-    { value: 'Science', label: 'Наука' },
-    { value: 'Philosophy', label: 'Филозофија' }
-  ];
   
   // Filter posts by current author (match by email or display name)
   const authorPosts = posts.filter(post => 
@@ -61,7 +51,6 @@ export const AuthorPanel: React.FC<AuthorPanelProps> = ({
       excerpt: '',
       content: '',
       author: user?.displayName || user?.email || '',
-      category: 'Culture',
       image: '',
       featured: false
     });
@@ -92,7 +81,7 @@ export const AuthorPanel: React.FC<AuthorPanelProps> = ({
       authorEmail: user?.email || '',
       date: editingPost?.date || currentDate,
       readTime: `${readTime} min read`,
-      category: formData.category!,
+      category: 'Story', // Default category since we removed categories
       image: formData.image || 'https://images.pexels.com/photos/1112048/pexels-photo-1112048.jpeg?auto=compress&cs=tinysrgb&w=1600',
       featured: formData.featured || false
     };
@@ -242,7 +231,7 @@ export const AuthorPanel: React.FC<AuthorPanelProps> = ({
                                   ? 'bg-amber-100 text-amber-800' 
                                   : 'bg-gray-100 text-gray-800'
                               }`}>
-                                {post.featured ? 'Истакнуто' : categories.find(c => c.value === post.category)?.label || post.category}
+                                {post.featured ? 'Истакнуто' : 'Прича'}
                               </span>
                               <span className="text-sm text-gray-500 flex items-center">
                                 <Calendar className="w-4 h-4 mr-1" />
@@ -355,31 +344,6 @@ export const AuthorPanel: React.FC<AuthorPanelProps> = ({
                         <div className="text-sm text-gray-600">Истакнуте приче</div>
                       </div>
                     </div>
-
-                    <div className="mt-6">
-                      <h4 className="font-medium text-gray-900 mb-3">Категорије</h4>
-                      <div className="space-y-2">
-                        {categories.map(category => {
-                          const count = authorPosts.filter(p => p.category === category.value).length;
-                          const percentage = authorPosts.length > 0 ? (count / authorPosts.length) * 100 : 0;
-                          
-                          return (
-                            <div key={category.value} className="flex items-center justify-between">
-                              <span className="text-sm text-gray-600">{category.label}</span>
-                              <div className="flex items-center space-x-2">
-                                <div className="w-20 h-2 bg-gray-200 rounded-full">
-                                  <div 
-                                    className="h-full bg-amber-500 rounded-full"
-                                    style={{ width: `${percentage}%` }}
-                                  />
-                                </div>
-                                <span className="text-sm text-gray-500 w-8">{count}</span>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -436,23 +400,6 @@ export const AuthorPanel: React.FC<AuthorPanelProps> = ({
                     className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                     placeholder="Кратак опис приче"
                   />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Категорија
-                  </label>
-                  <select
-                    value={formData.category || 'Culture'}
-                    onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                  >
-                    {categories.map(category => (
-                      <option key={category.value} value={category.value}>
-                        {category.label}
-                      </option>
-                    ))}
-                  </select>
                 </div>
 
                 <div>

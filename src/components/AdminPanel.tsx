@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, LogOut, BookOpen, Save, X, Eye, Shield, User, Users, Mail, Calendar, ToggleLeft, ToggleRight, Download, Upload } from 'lucide-react';
 import { BlogPostType } from '../types/blog';
-import { t } from '../utils/textConverter';
 import { useNavigate } from 'react-router-dom';
 import { getAllAuthors, AuthorUser, updateAuthor, deleteAuthor, createAuthor } from '../utils/dataManager';
 import { exportFileSystemData, importFileSystemData } from '../utils/fileStorage';
@@ -36,7 +35,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     excerpt: '',
     content: '',
     author: '',
-    category: 'Technology',
     image: '',
     featured: false
   });
@@ -50,8 +48,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     bio: '',
     isActive: true
   });
-
-  const categories = ['Technology', 'Culture', 'Environment', 'Science', 'Philosophy'];
 
   // Load authors on component mount
   useEffect(() => {
@@ -80,7 +76,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       excerpt: '',
       content: '',
       author: '',
-      category: 'Technology',
       image: '',
       featured: false
     });
@@ -110,7 +105,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       author: formData.author!,
       date: editingPost?.date || currentDate,
       readTime: `${readTime} min read`,
-      category: formData.category!,
+      category: 'Story', // Default category since we removed categories
       image: formData.image || 'https://images.pexels.com/photos/1112048/pexels-photo-1112048.jpeg?auto=compress&cs=tinysrgb&w=1600',
       featured: formData.featured || false
     };
@@ -298,7 +293,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
               <BookOpen className="w-8 h-8 text-amber-600" />
               <div>
                 <h1 className="text-2xl font-serif font-bold text-gray-900">
-                  {t('Readwell')} - {userType === 'admin' ? 'Админ панел' : 'Едитор панел'}
+                  Читај о Заплању - {userType === 'admin' ? 'Админ панел' : 'Едитор панел'}
                 </h1>
                 <div className="flex items-center space-x-2 mt-1">
                   {userType === 'admin' ? (
@@ -417,7 +412,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                                 ? 'bg-amber-100 text-amber-800' 
                                 : 'bg-gray-100 text-gray-800'
                             }`}>
-                              {post.featured ? 'Истакнуто' : t(post.category)}
+                              {post.featured ? 'Истакнуто' : 'Прича'}
                             </span>
                             <span className="text-sm text-gray-500">{post.date}</span>
                             <span className="text-sm text-gray-500">Аутор: {post.author}</span>
@@ -863,23 +858,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                     className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                     placeholder="Име аутора"
                   />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Категорија
-                  </label>
-                  <select
-                    value={formData.category || 'Technology'}
-                    onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                  >
-                    {categories.map(category => (
-                      <option key={category} value={category}>
-                        {t(category)}
-                      </option>
-                    ))}
-                  </select>
                 </div>
 
                 <div>
