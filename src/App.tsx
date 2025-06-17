@@ -22,6 +22,7 @@ function App() {
   const [currentPostId, setCurrentPostId] = useState<string>('');
   const [posts, setPosts] = useState<BlogPostType[]>([]);
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
+  const [userType, setUserType] = useState<'admin' | 'editor'>('editor');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const { user } = useAuth();
 
@@ -111,6 +112,11 @@ function App() {
     console.log('Author logged in:', user);
   };
 
+  const handleAdminLogin = (type: 'admin' | 'editor') => {
+    setUserType(type);
+    setIsAdminAuthenticated(true);
+  };
+
   const currentPost = posts.find(post => post.id === currentPostId);
 
   return (
@@ -162,7 +168,7 @@ function App() {
           {/* Admin Routes */}
           <Route path="/admin/login" element={
             <AdminLogin 
-              onLogin={() => setIsAdminAuthenticated(true)}
+              onLogin={handleAdminLogin}
               isAuthenticated={isAdminAuthenticated}
             />
           } />
@@ -175,6 +181,7 @@ function App() {
                 onUpdatePost={handleUpdatePost}
                 onDeletePost={handleDeletePost}
                 onLogout={() => setIsAdminAuthenticated(false)}
+                userType={userType}
               />
             ) : (
               <Navigate to="/admin/login" replace />

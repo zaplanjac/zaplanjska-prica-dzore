@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Edit, Trash2, LogOut, BookOpen, Save, X, Eye } from 'lucide-react';
+import { Plus, Edit, Trash2, LogOut, BookOpen, Save, X, Eye, Shield, User } from 'lucide-react';
 import { BlogPostType } from '../types/blog';
 import { t } from '../utils/textConverter';
 import { useNavigate } from 'react-router-dom';
@@ -10,6 +10,7 @@ interface AdminPanelProps {
   onUpdatePost: (post: BlogPostType) => void;
   onDeletePost: (postId: string) => void;
   onLogout: () => void;
+  userType: 'admin' | 'editor';
 }
 
 export const AdminPanel: React.FC<AdminPanelProps> = ({
@@ -17,7 +18,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   onAddPost,
   onUpdatePost,
   onDeletePost,
-  onLogout
+  onLogout,
+  userType
 }) => {
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
@@ -108,6 +110,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     navigate('/'); // Редиректовање на почетну страницу
   };
 
+  // Администратор може да види све постове, едитор само своје
+  const visiblePosts = userType === 'admin' ? posts : posts.filter(post => post.author === 'Editor');
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -116,9 +121,23 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <BookOpen className="w-8 h-8 text-amber-600" />
-              <h1 className="text-2xl font-serif font-bold text-gray-900">
-                {t('Readwell')} - Админ панел
-              </h1>
+              <div>
+                <h1 className="text-2xl font-serif font-bold text-gray-900">
+                  {t('Readwell')} - {userType === 'admin' ? 'Админ панел' : 'Едитор панел'}
+                </h1>
+                <div className="flex items-center space-x-2 mt-1">
+                  {userType === 'admin' ? (
+                    <Shield className="w-4 h-4 text-red-600" />
+                  ) : (
+                    <User className="w-4 h-4 text-blue-600" />
+                  )}
+                  <span className={`text-sm font-medium ${
+                    userType === 'admin' ? 'text-red-600' : 'text-blue-600'
+                  }`}>
+                    {userType === 'admin' ? 'Администратор' : 'Едитор'}
+                  </span>
+                </div>
+              </div>
             </div>
             <div className="flex items-center space-x-4">
               <button
@@ -145,11 +164,20 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
           /* Posts List */
           <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-3xl font-serif font-bold text-gray-900">Постови ({posts.length})</h2>
+              <h2 className="text-3xl font-serif font-bold text-gray-900">
+                {userType === 'admin' ? `Сви постови (${visiblePosts.length})` : `Ваши постови (${visiblePosts.length})`}
+              </h2>
+              {userType === 'admin' && (
+                <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-2">
+                  <p className="text-red-700 text-sm font-medium">
+                    Као администратор можете брисати све постове
+                  </p>
+                </div>
+              )}
             </div>
 
             <div className="grid gap-6">
-              {posts.map((post) => (
+              {visiblePosts.map((post) => (
                 <div key={post.id} className="bg-white rounded-xl shadow-md p-6">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
@@ -162,6 +190,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                           {post.featured ? 'Истакнуто' : t(post.category)}
                         </span>
                         <span className="text-sm text-gray-500">{post.date}</span>
+                        <span className="text-sm text-gray-500">Аутор: {post.author}</span>
                       </div>
                       <h3 className="text-xl font-serif font-bold text-gray-900 mb-2">
                         {post.title}
@@ -183,13 +212,16 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                       >
                         <Edit className="w-5 h-5" />
                       </button>
-                      <button
-                        onClick={() => handleDelete(post.id)}
-                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
-                        title="Обриши"
-                      >
-                        <Trash2 className="w-5 h-5" />
-                      </button>
+                      {/* Администратор може да брише све постове, едитор само своје */}
+                      {(userType === 'admin' || post.author === 'Editor') && (
+                        <button
+                          onClick={() => handleDelete(post.id)}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
+                          title="Обриши"
+                        >
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>

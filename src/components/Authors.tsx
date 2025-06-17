@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, BookOpen, Calendar, TrendingUp, Search, Filter, Mail, MapPin } from 'lucide-react';
+import { User, BookOpen, Calendar, TrendingUp, Filter, Mail, MapPin } from 'lucide-react';
 import { BlogPostType } from '../types/blog';
 import { t, latinToCyrillic } from '../utils/textConverter';
 
@@ -9,7 +9,6 @@ interface AuthorsProps {
 }
 
 export const Authors: React.FC<AuthorsProps> = ({ posts, onViewPost }) => {
-  const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'name' | 'posts' | 'recent'>('posts');
 
   // Extract unique authors from posts
@@ -38,9 +37,7 @@ export const Authors: React.FC<AuthorsProps> = ({ posts, onViewPost }) => {
     return acc;
   }, {} as Record<string, any>);
 
-  const authorsList = Object.values(authors).filter(author => 
-    author.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const authorsList = Object.values(authors);
 
   // Sort authors
   const sortedAuthors = [...authorsList].sort((a, b) => {
@@ -104,21 +101,10 @@ export const Authors: React.FC<AuthorsProps> = ({ posts, onViewPost }) => {
         </div>
       </section>
 
-      {/* Search and Filter */}
+      {/* Sort Filter */}
       <section className="mb-8">
         <div className="bg-white rounded-xl shadow-md p-6">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="text"
-                placeholder="Претражи ауторе..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-              />
-            </div>
-            
+          <div className="flex flex-col md:flex-row gap-4 items-center justify-center">
             <div className="relative">
               <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <select
@@ -141,10 +127,10 @@ export const Authors: React.FC<AuthorsProps> = ({ posts, onViewPost }) => {
           <div className="text-center py-12">
             <User className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-gray-600 mb-2">
-              Нема аутора који одговарају претрази
+              Нема аутора
             </h3>
             <p className="text-gray-500">
-              Покушајте са другачијим термином претраге
+              Тренутно нема регистрованих аутора
             </p>
           </div>
         ) : (

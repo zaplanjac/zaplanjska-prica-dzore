@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import { BookOpen, Lock, User } from 'lucide-react';
+import { BookOpen, Lock, User, Shield } from 'lucide-react';
 import { t } from '../utils/textConverter';
 
 interface AdminLoginProps {
-  onLogin: () => void;
+  onLogin: (userType: 'admin' | 'editor') => void;
   isAuthenticated: boolean;
 }
 
@@ -22,10 +22,15 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin, isAuthenticated
     setIsLoading(true);
     setError('');
 
-    // Simple authentication - in production, this should be handled by a backend
-    if (credentials.username === 'admin' && credentials.password === 'readwell2024') {
+    // Разликовање између администратора и едитора
+    if (credentials.username === 'admin' && credentials.password === 'admin2024') {
       setTimeout(() => {
-        onLogin();
+        onLogin('admin');
+        setIsLoading(false);
+      }, 1000);
+    } else if (credentials.username === 'editor' && credentials.password === 'editor2024') {
+      setTimeout(() => {
+        onLogin('editor');
         setIsLoading(false);
       }, 1000);
     } else {
@@ -47,14 +52,14 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin, isAuthenticated
               {t('Readwell')}
             </h1>
           </div>
-          <h2 className="text-xl text-gray-600">Админ панел</h2>
+          <h2 className="text-xl text-gray-600">Админ/Едитор панел</h2>
         </div>
 
         {/* Login Form */}
         <div className="bg-white rounded-2xl shadow-lg p-8">
           <div className="flex items-center justify-center mb-6">
             <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center">
-              <Lock className="w-8 h-8 text-amber-600" />
+              <Shield className="w-8 h-8 text-amber-600" />
             </div>
           </div>
 
@@ -71,7 +76,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin, isAuthenticated
                   value={credentials.username}
                   onChange={(e) => setCredentials(prev => ({ ...prev, username: e.target.value }))}
                   className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200"
-                  placeholder="Унесите корисничко име"
+                  placeholder="admin или editor"
                   required
                 />
               </div>
@@ -110,10 +115,24 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin, isAuthenticated
             </button>
           </form>
 
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-500">
-              Демо подаци: admin / readwell2024
-            </p>
+          <div className="mt-6 text-center space-y-2">
+            <div className="border-t border-gray-200 pt-4">
+              <h4 className="text-sm font-medium text-gray-700 mb-2">Демо подаци:</h4>
+              <div className="space-y-1 text-xs text-gray-600">
+                <div className="flex items-center justify-between bg-gray-50 p-2 rounded">
+                  <span className="font-medium">Администратор:</span>
+                  <span>admin / admin2024</span>
+                </div>
+                <div className="flex items-center justify-between bg-gray-50 p-2 rounded">
+                  <span className="font-medium">Едитор:</span>
+                  <span>editor / editor2024</span>
+                </div>
+              </div>
+            </div>
+            <div className="text-xs text-gray-500 mt-4">
+              <p><strong>Администратор:</strong> Може да брише све постове</p>
+              <p><strong>Едитор:</strong> Може да креира и уређује постове</p>
+            </div>
           </div>
         </div>
       </div>
