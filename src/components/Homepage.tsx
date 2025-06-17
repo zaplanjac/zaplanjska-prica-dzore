@@ -22,11 +22,9 @@ export const Homepage: React.FC<HomepageProps> = ({
 
   const getCategoryDisplayName = (category: string) => {
     const categoryMap: Record<string, string> = {
-      'Technology': 'Технологија',
       'Culture': 'Култура',
       'Environment': 'Природа',
-      'Science': 'Наука',
-      'Philosophy': 'Филозофија'
+     
     };
     return categoryMap[category] || category;
   };
