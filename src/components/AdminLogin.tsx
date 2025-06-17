@@ -47,10 +47,12 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin, isAuthenticated
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center space-x-2 mb-4">
-            <BookOpen className="w-8 h-8 text-amber-600" />
-            <h1 className="text-3xl font-serif font-bold text-gray-900">
-              {t('Readwell')}
-            </h1>
+            <a href="/" className="flex items-center space-x-2 group">
+              <BookOpen className="w-8 h-8 text-amber-600 group-hover:text-amber-700 transition-colors duration-200" />
+              <h1 className="text-3xl font-serif font-bold text-gray-900 group-hover:text-amber-700 transition-colors duration-200">
+                {t('Readwell')}
+              </h1>
+            </a>
           </div>
           <h2 className="text-xl text-gray-600">Админ/Едитор панел</h2>
         </div>

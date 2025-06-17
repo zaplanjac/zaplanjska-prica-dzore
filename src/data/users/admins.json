@@ -1,0 +1,26 @@
+{
+  "admins": [
+    {
+      "id": "admin-1",
+      "username": "admin",
+      "password": "admin2024",
+      "role": "admin",
+      "displayName": "Главни администратор",
+      "email": "admin@citaj-o-zaplanju.rs",
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "lastLogin": null,
+      "permissions": ["create", "read", "update", "delete", "manage_users"]
+    },
+    {
+      "id": "editor-1", 
+      "username": "editor",
+      "password": "editor2024",
+      "role": "editor",
+      "displayName": "Главни едитор",
+      "email": "editor@citaj-o-zaplanju.rs",
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "lastLogin": null,
+      "permissions": ["create", "read", "update"]
+    }
+  ]
+}

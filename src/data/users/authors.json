@@ -1,0 +1,18 @@
+{
+  "authors": [
+    {
+      "id": "author-demo-1",
+      "email": "bilo.koji@email.com",
+      "password": "password123",
+      "displayName": "Демо аутор",
+      "firstName": "Демо",
+      "lastName": "Аутор",
+      "bio": "Страствени писац који воли да дели приче о Заплању и његовим људима.",
+      "photoURL": null,
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "lastLogin": null,
+      "isActive": true,
+      "postsCount": 0
+    }
+  ]
+}

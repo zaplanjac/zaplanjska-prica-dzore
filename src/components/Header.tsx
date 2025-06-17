@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { BookOpen, ArrowLeft, Menu } from 'lucide-react';
-import { CategoryDropdown } from './CategoryDropdown';
 import { MobileMenu } from './MobileMenu';
 import { t } from '../utils/textConverter';
 
@@ -63,16 +62,6 @@ export const Header: React.FC<HeaderProps> = ({
               >
                 {t('Authors')}
               </button>
-              <button 
-                onClick={onViewHistory}
-                className="text-gray-600 hover:text-gray-900 font-medium transition-colors duration-200"
-              >
-                Историја
-              </button>
-              <CategoryDropdown 
-                onCategorySelect={onCategorySelect}
-                selectedCategory={selectedCategory}
-              />
             </nav>
 
             {/* Mobile Menu Button */}

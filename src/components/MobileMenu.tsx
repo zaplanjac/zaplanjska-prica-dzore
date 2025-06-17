@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { X, BookOpen, Tag, Users, ChevronDown, Clock } from 'lucide-react';
+import React from 'react';
+import { X, BookOpen, Users } from 'lucide-react';
 import { t } from '../utils/textConverter';
 
 interface MobileMenuProps {
@@ -16,14 +16,8 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
   isOpen, 
   onClose, 
   onBackToHome, 
-  onViewAuthors, 
-  onViewHistory,
-  onCategorySelect,
-  selectedCategory
+  onViewAuthors
 }) => {
-  const [showCategories, setShowCategories] = useState(false);
-  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
-
   const handleHomeClick = () => {
     onBackToHome();
     onClose();
@@ -34,40 +28,10 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
     onClose();
   };
 
-  const handleHistoryClick = () => {
-    onViewHistory();
-    onClose();
-  };
-
-  const handleCategoryClick = (category: string) => {
-    onCategorySelect(category);
-    onClose();
-  };
-
-  const categories = [
-    { name: 'Technology', displayName: t('Technology'), count: 1, subcategories: ['Дигитални минимализам', 'Вештачка интелигенција'] },
-    { name: 'Culture', displayName: t('Culture'), count: 2, subcategories: ['Читање', 'Храна и култура'] },
-    { name: 'Environment', displayName: t('Environment'), count: 1, subcategories: ['Урбано баштованство', 'Одрживост'] },
-    { name: 'Science', displayName: t('Science'), count: 1, subcategories: ['Неуронаука', 'Психологија'] },
-    { name: 'Philosophy', displayName: t('Philosophy'), count: 1, subcategories: ['Лутање', 'Мишљење'] }
-  ];
-
   const menuItems = [
     { icon: BookOpen, label: t('Stories'), onClick: handleHomeClick },
-    { icon: Users, label: t('Authors'), onClick: handleAuthorsClick },
-    { icon: Clock, label: 'Историја', onClick: handleHistoryClick }
+    { icon: Users, label: t('Authors'), onClick: handleAuthorsClick }
   ];
-
-  const toggleCategories = () => {
-    setShowCategories(!showCategories);
-    if (!showCategories) {
-      setExpandedCategory(null);
-    }
-  };
-
-  const toggleCategory = (categoryName: string) => {
-    setExpandedCategory(expandedCategory === categoryName ? null : categoryName);
-  };
 
   return (
     <>
@@ -122,114 +86,6 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
                   </button>
                 </li>
               ))}
-              
-              {/* Categories Section */}
-              <li>
-                <div className="p-4">
-                  {/* Categories Toggle Button */}
-                  <button
-                    onClick={toggleCategories}
-                    className={`flex items-center justify-between w-full p-3 rounded-xl transition-colors duration-200 group ${
-                      selectedCategory !== 'all' 
-                        ? 'bg-amber-50 text-amber-700 border border-amber-200' 
-                        : 'hover:bg-amber-50'
-                    }`}
-                  >
-                    <div className="flex items-center space-x-3">
-                      <Tag className={`w-5 h-5 transition-colors duration-200 ${
-                        selectedCategory !== 'all' 
-                          ? 'text-amber-600' 
-                          : 'text-gray-600 group-hover:text-amber-600'
-                      }`} />
-                      <span className={`font-medium transition-colors duration-200 ${
-                        selectedCategory !== 'all' 
-                          ? 'text-amber-700' 
-                          : 'text-gray-900 group-hover:text-amber-700'
-                      }`}>
-                        {selectedCategory === 'all' ? t('Categories') : 
-                          categories.find(cat => cat.name === selectedCategory)?.displayName || selectedCategory
-                        }
-                      </span>
-                    </div>
-                    <ChevronDown 
-                      className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${
-                        showCategories ? 'rotate-180' : ''
-                      }`} 
-                    />
-                  </button>
-                  
-                  {/* Categories List */}
-                  <div
-                    className={`overflow-hidden transition-all duration-300 ${
-                      showCategories 
-                        ? 'max-h-96 opacity-100 mt-2' 
-                        : 'max-h-0 opacity-0'
-                    }`}
-                  >
-                    <div className="space-y-2 ml-8">
-                      {/* All Categories Option */}
-                      <button
-                        onClick={() => handleCategoryClick('all')}
-                        className={`w-full p-3 rounded-lg transition-colors duration-200 border ${
-                          selectedCategory === 'all'
-                            ? 'bg-amber-50 border-amber-200 text-amber-700'
-                            : 'border-transparent hover:bg-amber-50 hover:border-amber-200'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className="font-medium text-gray-900">
-                            Све категорије
-                          </span>
-                          <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                            {categories.reduce((total, cat) => total + cat.count, 0)}
-                          </span>
-                        </div>
-                      </button>
-
-                      {categories.map((category) => (
-                        <div key={category.name} className="group">
-                          {/* Main Category Button */}
-                          <button
-                            onClick={() => handleCategoryClick(category.name)}
-                            className={`w-full p-3 rounded-lg transition-colors duration-200 border ${
-                              selectedCategory === category.name
-                                ? 'bg-amber-50 border-amber-200 text-amber-700'
-                                : 'border-transparent hover:bg-amber-50 hover:border-amber-200'
-                            }`}
-                          >
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center space-x-2">
-                                <span className={`font-medium ${
-                                  selectedCategory === category.name ? 'text-amber-700' : 'text-gray-900 group-hover:text-amber-700'
-                                }`}>
-                                  {category.displayName}
-                                </span>
-                                <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                                  {category.count}
-                                </span>
-                              </div>
-                            </div>
-                            <div className="flex flex-wrap gap-1 mt-2">
-                              {category.subcategories.map((sub) => (
-                                <span
-                                  key={sub}
-                                  className={`text-xs px-2 py-1 rounded-full transition-colors duration-200 ${
-                                    selectedCategory === category.name
-                                      ? 'bg-amber-100 text-amber-700'
-                                      : 'text-gray-600 bg-gray-50 group-hover:bg-amber-100 group-hover:text-amber-700'
-                                  }`}
-                                >
-                                  {sub}
-                                </span>
-                              ))}
-                            </div>
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </li>
             </ul>
           </nav>
 
