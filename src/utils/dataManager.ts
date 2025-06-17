@@ -148,7 +148,78 @@ export const getAllAuthors = (): AuthorUser[] => {
       console.error('Error parsing saved authors:', error);
     }
   }
-  return [];
+  
+  // Return demo author if no saved authors
+  const demoAuthor: AuthorUser = {
+    id: "author-demo-1",
+    email: "bilo.koji@email.com",
+    password: "password123",
+    displayName: "Демо аутор",
+    firstName: "Демо",
+    lastName: "Аутор",
+    bio: "Страствени писац који воли да дели приче о Заплању и његовим људима.",
+    photoURL: null,
+    createdAt: "2024-01-01T00:00:00.000Z",
+    lastLogin: null,
+    isActive: true,
+    postsCount: 0
+  };
+  
+  localStorage.setItem('authors', JSON.stringify([demoAuthor]));
+  return [demoAuthor];
+};
+
+// Create new author (admin function)
+export const createAuthor = (authorData: Omit<AuthorUser, 'id' | 'createdAt' | 'lastLogin' | 'postsCount'>): AuthorUser => {
+  const authors = getAllAuthors();
+  
+  // Check if email already exists
+  if (authors.find(author => author.email === authorData.email)) {
+    throw new Error('Author with this email already exists');
+  }
+
+  const newAuthor: AuthorUser = {
+    ...authorData,
+    id: `author-${Date.now()}`,
+    createdAt: new Date().toISOString(),
+    lastLogin: null,
+    postsCount: 0
+  };
+
+  authors.push(newAuthor);
+  localStorage.setItem('authors', JSON.stringify(authors));
+  
+  return newAuthor;
+};
+
+// Update author (admin function)
+export const updateAuthor = (authorId: string, updateData: Partial<Omit<AuthorUser, 'id' | 'createdAt'>>): void => {
+  const authors = getAllAuthors();
+  const authorIndex = authors.findIndex(author => author.id === authorId);
+  
+  if (authorIndex === -1) {
+    throw new Error('Author not found');
+  }
+
+  // Update author data
+  authors[authorIndex] = {
+    ...authors[authorIndex],
+    ...updateData
+  };
+
+  localStorage.setItem('authors', JSON.stringify(authors));
+};
+
+// Delete author (admin function)
+export const deleteAuthor = (authorId: string): void => {
+  const authors = getAllAuthors();
+  const filteredAuthors = authors.filter(author => author.id !== authorId);
+  
+  if (filteredAuthors.length === authors.length) {
+    throw new Error('Author not found');
+  }
+
+  localStorage.setItem('authors', JSON.stringify(filteredAuthors));
 };
 
 // Update author post count
