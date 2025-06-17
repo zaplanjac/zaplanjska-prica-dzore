@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Plus, Edit, Trash2, LogOut, BookOpen, Save, X, Eye } from 'lucide-react';
 import { BlogPostType } from '../types/blog';
 import { t } from '../utils/textConverter';
+import { useNavigate } from 'react-router-dom';
 
 interface AdminPanelProps {
   posts: BlogPostType[];
@@ -18,6 +19,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   onDeletePost,
   onLogout
 }) => {
+  const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [editingPost, setEditingPost] = useState<BlogPostType | null>(null);
   const [formData, setFormData] = useState<Partial<BlogPostType>>({
@@ -101,6 +103,11 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     }
   };
 
+  const handleLogout = () => {
+    onLogout();
+    navigate('/'); // Редиректовање на почетну страницу
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -122,7 +129,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 <span>Нови пост</span>
               </button>
               <button
-                onClick={onLogout}
+                onClick={handleLogout}
                 className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
               >
                 <LogOut className="w-5 h-5" />

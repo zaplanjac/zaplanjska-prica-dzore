@@ -3,6 +3,7 @@ import { Plus, Edit, Trash2, LogOut, BookOpen, Save, X, User, Eye, Calendar, Clo
 import { BlogPostType } from '../types/blog';
 import { useAuth } from '../hooks/useAuth';
 import { t } from '../utils/textConverter';
+import { useNavigate } from 'react-router-dom';
 
 interface AuthorPanelProps {
   posts: BlogPostType[];
@@ -18,6 +19,7 @@ export const AuthorPanel: React.FC<AuthorPanelProps> = ({
   onDeletePost
 }) => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [editingPost, setEditingPost] = useState<BlogPostType | null>(null);
   const [activeTab, setActiveTab] = useState<'posts' | 'profile'>('posts');
@@ -119,6 +121,7 @@ export const AuthorPanel: React.FC<AuthorPanelProps> = ({
   const handleLogout = async () => {
     try {
       await logout();
+      navigate('/'); // Редиректовање на почетну страницу
     } catch (error) {
       console.error('Logout error:', error);
     }
